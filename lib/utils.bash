@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+SOURCES_REPO_NAME="RakuyoKit/swift"
 TOOL_NAME="swift-style-guide"
 
 fail() {
@@ -21,7 +22,7 @@ sort_versions() {
 }
 
 list_all_versions() {
-	RELEASES_URL="https://api.github.com/repos/RakuyoKit/swift/releases"
+	RELEASES_URL="https://api.github.com/repos/${SOURCES_REPO_NAME}/releases"
 
 	curl_cmd="curl -s"
 	if [ -n "${GITHUB_API_TOKEN:-}" ]; then
@@ -40,7 +41,7 @@ download_style_file() {
 	local version=$1
 	local url_path=$2
 
-	curl -O -L "https://raw.githubusercontent.com/RakuyoKit/swift/${version}/${url_path}"
+	curl -O -L "https://raw.githubusercontent.com/${SOURCES_REPO_NAME}/${version}/${url_path}"
 }
 
 install_version() {
