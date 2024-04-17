@@ -1,0 +1,24 @@
+SWIFTFORMAT_COMMAND = 'swiftformat . --config ./swift/Sources/rakuyo.swiftformat'
+SWIFTFORMAT_LINT_COMMAND = 'swiftformat . --config ./swift/Sources/rakuyo.swiftformat --lint'
+
+namespace :swift do
+  desc 'Run SwiftFormat without Mise'
+  task :format_without_mise do
+    sh SWIFTFORMAT_COMMAND
+  end
+
+  desc 'Run SwiftFormat'
+  task :format do
+    sh 'mise exec -- ' + SWIFTFORMAT_COMMAND
+  end
+
+  desc 'Run SwiftFormat Lint without Mise'
+  task :lint_without_mise do
+    sh SWIFTFORMAT_LINT_COMMAND
+  end
+  
+  desc 'Run SwiftFormat Lint'
+  task :lint do
+    sh 'mise exec -- ' + SWIFTFORMAT_LINT_COMMAND
+  end
+end

@@ -56,11 +56,21 @@ install_version() {
 	local sources_path="./Sources"
 
 	(
+		# Rakefile
+		current_script_path=${BASH_SOURCE[0]}
+		plugin_dir=$(dirname "$(dirname "$current_script_path")")
+		cp -f "${plugin_dir}/lib/Rakefile" Rakefile
+
+		# xcode_settings.bash
 		mkdir -p "${install_path}" && cd ${install_path}
 		download_style_file "${version}" "resources/xcode_settings.bash"
 
 		mkdir -p ${sources_path} && cd ${sources_path}
+
+		# swiftlint.yml
 		download_style_file "${version}" "Sources/RakuyoSwiftFormatTool/swiftlint.yml"
+
+		# rakuyo.swiftformat
 		download_style_file "${version}" "Sources/RakuyoSwiftFormatTool/rakuyo.swiftformat"
 
 		echo "$TOOL_NAME $version installation was successful!"
