@@ -24,7 +24,7 @@ list_all_versions() {
 	RELEASES_URL="https://api.github.com/repos/RakuyoKit/swift/releases"
 
 	curl_cmd="curl -s"
-	if [ -n "$GITHUB_API_TOKEN" ]; then
+	if [ -n "${GITHUB_API_TOKEN:-}" ]; then
 		curl_cmd="$curl_cmd -H \"Authorization: token $GITHUB_API_TOKEN\""
 	fi
 
