@@ -40,8 +40,11 @@ list_all_versions() {
 download_style_file() {
 	local version=$1
 	local url_path=$2
+	local url="https://raw.githubusercontent.com/${SOURCES_REPO_NAME}/${version}/${url_path}"
 
-	curl -O -L "https://raw.githubusercontent.com/${SOURCES_REPO_NAME}/${version}/${url_path}"
+	echo "Will download: ${url}"
+
+	curl -O -L "${url}"
 }
 
 install_version() {
