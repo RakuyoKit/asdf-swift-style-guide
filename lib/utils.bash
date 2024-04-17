@@ -29,24 +29,24 @@ list_all_versions() {
 	fi
 
 	# Fetch list of releases and get names of each release tag
-	eval "$curl_cmd $RELEASES_URL" \
-		| grep tag_name \
-		| sed 's/"tag_name": //g;s/"//g;s/,//g' \
-		| (tac 2>/dev/null || tail -r) \
-		| xargs
+	eval "$curl_cmd $RELEASES_URL" |
+		grep tag_name |
+		sed 's/"tag_name": //g;s/"//g;s/,//g' |
+		(tac 2>/dev/null || tail -r) |
+		xargs
 }
 
 download_style_file() {
 	local version=$1
-    local url_path=$2
+	local url_path=$2
 
-    curl -O -L "https://raw.githubusercontent.com/RakuyoKit/swift/${version}/${url_path}"
+	curl -O -L "https://raw.githubusercontent.com/RakuyoKit/swift/${version}/${url_path}"
 }
 
 install_version() {
 	local install_type="$1"
 	local version="$2"
-	
+
 	if [ "$install_type" != "version" ]; then
 		fail "asdf-$TOOL_NAME supports release installs only"
 	fi
