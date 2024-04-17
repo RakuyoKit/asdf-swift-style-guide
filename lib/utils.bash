@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-GH_REPO="https://github.com/RakuyoKit/asdf-swift-style-guide"
 TOOL_NAME="swift-style-guide"
 
 fail() {
@@ -40,7 +39,6 @@ list_all_versions() {
 download_style_file() {
 	local version=$1
     local url_path=$2
-    local filename="${url_path##*/}"
 
     curl -O -L "https://raw.githubusercontent.com/RakuyoKit/swift/${version}/${url_path}"
 }
@@ -58,11 +56,11 @@ install_version() {
 
 	(
 		mkdir -p "${install_path}" && cd ${install_path}
-		download_style_file ${version} "resources/xcode_settings.bash"
+		download_style_file "${version}" "resources/xcode_settings.bash"
 
 		mkdir -p ${sources_path} && cd ${sources_path}
-		download_style_file ${version} "Sources/RakuyoSwiftFormatTool/swiftlint.yml"
-		download_style_file ${version} "Sources/RakuyoSwiftFormatTool/rakuyo.swiftformat"
+		download_style_file "${version}" "Sources/RakuyoSwiftFormatTool/swiftlint.yml"
+		download_style_file "${version}" "Sources/RakuyoSwiftFormatTool/rakuyo.swiftformat"
 
 		echo "$TOOL_NAME $version installation was successful!"
 	) || (
