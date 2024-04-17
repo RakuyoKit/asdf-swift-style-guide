@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
 
-shellcheck --shell=bash --external-sources \
-	bin/* --source-path=template/lib/ \
-	lib/*.bash \
-	scripts/*
-
-shfmt --language-dialect bash --diff \
-	./**/*
+find . -type f -name '*.bash' -exec shellcheck --shell=bash --external-sources --source-path=template/lib/ {} +
+find . -type f -name '*.bash' -exec shfmt --language-dialect bash --diff {} +
