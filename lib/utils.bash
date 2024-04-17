@@ -2,10 +2,8 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for swift-style-guide.
 GH_REPO="https://github.com/RakuyoKit/asdf-swift-style-guide"
 TOOL_NAME="swift-style-guide"
-TOOL_TEST="ssg --version"
 
 fail() {
 	echo -e "asdf-$TOOL_NAME: $*"
@@ -14,7 +12,6 @@ fail() {
 
 curl_opts=(-fsSL)
 
-# NOTE: You might want to remove this if swift-style-guide is not hosted on GitHub releases.
 if [ -n "${GITHUB_API_TOKEN:-}" ]; then
 	curl_opts=("${curl_opts[@]}" -H "Authorization: token $GITHUB_API_TOKEN")
 fi
@@ -24,47 +21,48 @@ sort_versions() {
 		LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | awk '{print $2}'
 }
 
-list_github_tags() {
-	git ls-remote --tags --refs "$GH_REPO" |
-		grep -o 'refs/tags/.*' | cut -d/ -f3- |
-		sed 's/^v//' # NOTE: You might want to adapt this sed to remove non-version strings from tags
-}
-
 list_all_versions() {
-	# TODO: Adapt this. By default we simply list the tag names from GitHub releases.
-	# Change this function if swift-style-guide has other means of determining installable versions.
-	list_github_tags
+	RELEASES_URL="https://api.github.com/repos/RakuyoKit/swift/releases"
+
+	curl_cmd="curl -s"
+	if [ -n "$GITHUB_API_TOKEN" ]; then
+		curl_cmd="$curl_cmd -H \"Authorization: token $GITHUB_API_TOKEN\""
+	fi
+
+	# Fetch list of releases and get names of each release tag
+	eval "$curl_cmd $RELEASES_URL" \
+		| grep tag_name \
+		| sed 's/"tag_name": //g;s/"//g;s/,//g' \
+		| (tac 2>/dev/null || tail -r) \
+		| xargs
 }
 
-download_release() {
-	local version filename url
-	version="$1"
-	filename="$2"
+download_style_file() {
+	local version=$1
+    local url_path=$2
+    local filename="${url_path##*/}"
 
-	# TODO: Adapt the release URL convention for swift-style-guide
-	url="$GH_REPO/archive/v${version}.tar.gz"
-
-	echo "* Downloading $TOOL_NAME release $version..."
-	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
+    curl -O -L "https://raw.githubusercontent.com/RakuyoKit/swift/${version}/${url_path}"
 }
 
 install_version() {
 	local install_type="$1"
 	local version="$2"
-	local install_path="${3%/bin}/bin"
-
+	
 	if [ "$install_type" != "version" ]; then
 		fail "asdf-$TOOL_NAME supports release installs only"
 	fi
 
-	(
-		mkdir -p "$install_path"
-		cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_path"
+	local install_path="./swift"
+	local sources_path="./Sources"
 
-		# TODO: Assert swift-style-guide executable exists.
-		local tool_cmd
-		tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
-		test -x "$install_path/$tool_cmd" || fail "Expected $install_path/$tool_cmd to be executable."
+	(
+		mkdir -p "${install_path}" && cd ${install_path}
+		download_style_file ${version} "resources/xcode_settings.bash"
+
+		mkdir -p ${sources_path} && cd ${sources_path}
+		download_style_file ${version} "Sources/RakuyoSwiftFormatTool/swiftlint.yml"
+		download_style_file ${version} "Sources/RakuyoSwiftFormatTool/rakuyo.swiftformat"
 
 		echo "$TOOL_NAME $version installation was successful!"
 	) || (
