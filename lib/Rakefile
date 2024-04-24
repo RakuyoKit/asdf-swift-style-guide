@@ -3,11 +3,15 @@ MISE_EXEC_PREFIX = 'mise exec --'
 namespace :env do
   desc 'Init env'
   task :init do
-    install_mise
-    puts "mise installed: #{`mise --version`}"
-
-    sh "mise install"
-    Rake::Task['env:githook'].invoke
+    if File.exist?('.mise.toml')
+      install_mise
+      puts "mise installed: #{`mise --version`}"
+      sh "mise install"
+    end
+    
+    if File.exist?('.pre-commit-config.yaml')
+      Rake::Task['env:githook'].invoke
+    end
   end
 
   desc 'Install git hook'
@@ -62,34 +66,5 @@ namespace :swift do
   desc 'Run SwiftFormat Lint'
   task :lint do
     sh "#{MISE_EXEC_PREFIX} #{SWIFTFORMAT_LINT_COMMAND}"
-  end
-end
-
-namespace :tuist do
-  desc 'Edit tuist config'
-  task :edit do
-    sh "#{MISE_EXEC_PREFIX} tuist edit"
-  end
-
-  desc 'Install dependencies'
-  task :install do
-    sh "#{MISE_EXEC_PREFIX} tuist install --verbose"
-  end
-
-  desc 'Generate Project'
-  task :generate do
-    sh "#{MISE_EXEC_PREFIX} tuist generate --no-open"
-  end
-
-  desc 'Incremental build'
-  task :incr_build => [:install] do
-    sh "#{MISE_EXEC_PREFIX} tuist generate --no-open --no-binary-cache"
-    sh "#{MISE_EXEC_PREFIX} tuist build --verbose"
-  end
-
-  desc 'Full build'
-  task :build do
-    sh "#{MISE_EXEC_PREFIX} tuist clean"
-    Rake::Task['tuist:incr_build'].invoke
   end
 end
