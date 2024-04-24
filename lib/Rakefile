@@ -64,32 +64,3 @@ namespace :swift do
     sh "#{MISE_EXEC_PREFIX} #{SWIFTFORMAT_LINT_COMMAND}"
   end
 end
-
-namespace :tuist do
-  desc 'Edit tuist config'
-  task :edit do
-    sh "#{MISE_EXEC_PREFIX} tuist edit"
-  end
-
-  desc 'Install dependencies'
-  task :install do
-    sh "#{MISE_EXEC_PREFIX} tuist install --verbose"
-  end
-
-  desc 'Generate Project'
-  task :generate do
-    sh "#{MISE_EXEC_PREFIX} tuist generate --no-open"
-  end
-
-  desc 'Incremental build'
-  task :incr_build => [:install] do
-    sh "#{MISE_EXEC_PREFIX} tuist generate --no-open --no-binary-cache"
-    sh "#{MISE_EXEC_PREFIX} tuist build --verbose"
-  end
-
-  desc 'Full build'
-  task :build do
-    sh "#{MISE_EXEC_PREFIX} tuist clean"
-    Rake::Task['tuist:incr_build'].invoke
-  end
-end
