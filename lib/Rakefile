@@ -19,6 +19,13 @@ namespace :env do
     sh "#{MISE_EXEC_PREFIX} pre-commit install"
   end
 
+  desc 'Update swift-style-guide'
+  task :update_style_plugin do
+    sh "mise plugin uninstall swift-style-guide"
+    sh "mise uninstall swift-style-guide"
+    sh "mise install"
+  end
+
   def install_mise
     output = `which mise >/dev/null 2>&1`
     if $?.success?
