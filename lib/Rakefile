@@ -1,7 +1,49 @@
-SWIFTFORMAT_COMMAND = 'swiftformat . --config ./swift/Sources/rakuyo.swiftformat'
-SWIFTFORMAT_LINT_COMMAND = 'swiftformat . --config ./swift/Sources/rakuyo.swiftformat --lint'
+MISE_EXEC_PREFIX = 'mise exec --'
+
+namespace :env do
+  desc 'Init env'
+  task :init do
+    install_mise
+    puts "mise installed: #{`mise --version`}"
+
+    sh "mise install"
+    Rake::Task['env:githook'].invoke
+  end
+
+  desc 'Install git hook'
+  task :githook do
+    sh "#{MISE_EXEC_PREFIX} pre-commit install"
+  end
+
+  def install_mise
+    output = `which mise >/dev/null 2>&1`
+    if $?.success?
+      return
+    end
+
+    puts "mise not found, installing..."
+    sh "curl https://mise.run | sh"
+
+    case ENV['SHELL']
+    when /bash/
+      sh 'echo "eval \"\$(~/.local/bin/mise activate bash)\"" >> ~/.bashrc'
+      sh "source ~/.bashrc"
+
+    when /zsh/
+      sh 'echo "eval \"\$(~/.local/bin/mise activate zsh)\"" >> ~/.zshrc'
+      sh "zsh -c 'source ~/.zshrc'"
+
+    else
+      puts "Unknown shell env!"
+      exit 1
+    end
+  end
+end
 
 namespace :swift do
+  SWIFTFORMAT_COMMAND = 'swiftformat . --config ./swift/Sources/rakuyo.swiftformat'
+  SWIFTFORMAT_LINT_COMMAND = 'swiftformat . --config ./swift/Sources/rakuyo.swiftformat --lint'
+
   desc 'Run SwiftFormat without Mise'
   task :format_without_mise do
     sh SWIFTFORMAT_COMMAND
@@ -9,16 +51,45 @@ namespace :swift do
 
   desc 'Run SwiftFormat'
   task :format do
-    sh 'mise exec -- ' + SWIFTFORMAT_COMMAND
+    sh "#{MISE_EXEC_PREFIX} #{SWIFTFORMAT_COMMAND}"
   end
 
   desc 'Run SwiftFormat Lint without Mise'
   task :lint_without_mise do
     sh SWIFTFORMAT_LINT_COMMAND
   end
-  
+
   desc 'Run SwiftFormat Lint'
   task :lint do
-    sh 'mise exec -- ' + SWIFTFORMAT_LINT_COMMAND
+    sh "#{MISE_EXEC_PREFIX} #{SWIFTFORMAT_LINT_COMMAND}"
+  end
+end
+
+namespace :tuist do
+  desc 'Edit tuist config'
+  task :edit do
+    sh "#{MISE_EXEC_PREFIX} tuist edit"
+  end
+
+  desc 'Install dependencies'
+  task :install do
+    sh "#{MISE_EXEC_PREFIX} tuist install --verbose"
+  end
+
+  desc 'Generate Project'
+  task :generate do
+    sh "#{MISE_EXEC_PREFIX} tuist generate --no-open"
+  end
+
+  desc 'Incremental build'
+  task :incr_build => [:install] do
+    sh "#{MISE_EXEC_PREFIX} tuist generate --no-open --no-binary-cache"
+    sh "#{MISE_EXEC_PREFIX} tuist build --verbose"
+  end
+
+  desc 'Full build'
+  task :build do
+    sh "#{MISE_EXEC_PREFIX} tuist clean"
+    Rake::Task['tuist:incr_build'].invoke
   end
 end
