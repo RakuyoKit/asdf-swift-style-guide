@@ -3,11 +3,15 @@ MISE_EXEC_PREFIX = 'mise exec --'
 namespace :env do
   desc 'Init env'
   task :init do
-    install_mise
-    puts "mise installed: #{`mise --version`}"
-
-    sh "mise install"
-    Rake::Task['env:githook'].invoke
+    if File.exist?('.mise.toml')
+      install_mise
+      puts "mise installed: #{`mise --version`}"
+      sh "mise install"
+    end
+    
+    if File.exist?('.pre-commit-config.yaml')
+      Rake::Task['env:githook'].invoke
+    end
   end
 
   desc 'Install git hook'
