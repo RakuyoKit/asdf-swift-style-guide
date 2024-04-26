@@ -1,3 +1,6 @@
+# Reference other rake files to avoid adding the -f parameter when executing the rake command
+FileList['**/*.rb'].each { |rf| require_relative rf }
+
 MISE_EXEC_PREFIX = 'mise exec --'
 
 namespace :env do
