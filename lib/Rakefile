@@ -2,6 +2,14 @@ module Tools
   def mise_exec_prefix
     'mise exec --'
   end
+
+  def ci_mode?
+    ENV['CI'] == 'true'
+  end
+
+  def ci_debug_mode?
+    ENV['ACTIONS_RUNNER_DEBUG'] == 'true'
+  end
 end
 
 # Reference other rake files to avoid adding the -f parameter when executing the rake command
