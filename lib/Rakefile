@@ -1,7 +1,19 @@
+module Tools
+  def mise_exec_prefix
+    'mise exec --'
+  end
+
+  def ci_mode?
+    ENV['CI'] == 'true'
+  end
+
+  def ci_debug_mode?
+    ENV['ACTIONS_RUNNER_DEBUG'] == 'true'
+  end
+end
+
 # Reference other rake files to avoid adding the -f parameter when executing the rake command
 FileList['**/*.rb'].each { |rf| require_relative rf }
-
-MISE_EXEC_PREFIX = 'mise exec --'
 
 namespace :env do
   desc 'Init env'
@@ -19,7 +31,7 @@ namespace :env do
 
   desc 'Install git hook'
   task :githook do
-    sh "#{MISE_EXEC_PREFIX} pre-commit install"
+    sh "#{mise_exec_prefix} pre-commit install"
   end
 
   desc 'Update swift-style-guide'
@@ -65,7 +77,7 @@ namespace :swift do
 
   desc 'Run SwiftFormat'
   task :format do
-    sh "#{MISE_EXEC_PREFIX} #{SWIFTFORMAT_COMMAND}"
+    sh "#{mise_exec_prefix} #{SWIFTFORMAT_COMMAND}"
   end
 
   desc 'Run SwiftFormat Lint without Mise'
@@ -75,6 +87,6 @@ namespace :swift do
 
   desc 'Run SwiftFormat Lint'
   task :lint do
-    sh "#{MISE_EXEC_PREFIX} #{SWIFTFORMAT_LINT_COMMAND}"
+    sh "#{mise_exec_prefix} #{SWIFTFORMAT_LINT_COMMAND}"
   end
 end
