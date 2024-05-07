@@ -16,6 +16,8 @@ end
 FileList['**/*.rb'].each { |rf| require_relative rf }
 
 namespace :env do
+  include Tools
+
   desc 'Init env'
   task :init do
     if File.exist?('.mise.toml')
@@ -67,6 +69,8 @@ namespace :env do
 end
 
 namespace :swift do
+  include Tools
+
   SWIFTFORMAT_COMMAND = 'swiftformat . --config ./swift/Sources/rakuyo.swiftformat'
   SWIFTFORMAT_LINT_COMMAND = 'swiftformat . --config ./swift/Sources/rakuyo.swiftformat --lint'
 
