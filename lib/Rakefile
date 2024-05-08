@@ -8,7 +8,7 @@ module Tools
   end
 
   def ci_debug_mode?
-    ENV['ACTIONS_RUNNER_DEBUG'] == 'true'
+    ENV['RUNNER_DEBUG'] == '1' || ENV['ACTIONS_RUNNER_DEBUG'] == 'true'
   end
 end
 
